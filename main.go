@@ -6,7 +6,9 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -42,11 +44,12 @@ func init() {
 	repo = os.Getenv("GOKKU_REPO")
 	dokkuremote = os.Getenv("GOKKU_DOKKU_REMOTE")
 
-	cmd := exec.Command("git", "clone", repo)
+	cmd := exec.Command("git", "clone", repo, ".")
 	cmd.Dir = *dir
-	err = cmd.Run()
+	out, err := cmd.CombinedOutput()
 
 	if err != nil {
+		fmt.Println(string(out))
 		panic(err)
 	}
 }
@@ -72,17 +75,23 @@ func main() {
 func handleHTTP(w http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		w.Write([]byte("Invalid request: " + err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Invalid request: " + err.Error()))
+
+		log.Println("could not read body :(")
 		return
 	}
 
 	var hook lib.CommitHook
 
-	err = json.Unmarshal(body, hook)
+	err = json.Unmarshal(body, &hook)
 	if err != nil {
-		w.Write([]byte("Invalid request: " + err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Invalid request: " + err.Error()))
+
+		log.Println(string(body))
+		log.Println(err.Error())
+		log.Println("could not decode json :(")
 		return
 	}
 
@@ -93,20 +102,20 @@ func handleHTTP(w http.ResponseWriter, req *http.Request) {
 
 	bot.Privmsgf(
 		"#"+os.Getenv("BOT_CHANNEL"),
-		"%s (%s) made %d commits to %s of the site, deploying...",
-		hook.Pusher.Name,
+		"\x036,8%s made %d commits to %s of the site, deploying...",
 		hook.Pusher.Username,
 		len(hook.Commits),
 		hook.Ref,
 	)
-	bot.Privmsg("#"+os.Getenv("BOT_CHANNEL"), hook.CompareURL)
+
+	bot.Privmsg("#"+os.Getenv("BOT_CHANNEL"), "\x036,8"+hook.CompareURL)
 
 	for _, commit := range hook.Commits {
 		bot.Privmsgf(
 			"#"+os.Getenv("BOT_CHANNEL"),
-			"[%d] %s - %s",
+			"\x036,8[\x02%s\x02] %s - %s",
 			commit.ID[:8],
-			commit.Author,
+			commit.Author.Username,
 			commit.Message,
 		)
 	}
@@ -124,7 +133,7 @@ func doCommand(hook lib.CommitHook) {
 	if err != nil {
 		bot.Privmsgf(
 			"#"+os.Getenv("BOT_CHANNEL"),
-			"Had some error pulling repo: %s",
+			"\x034Had some error pulling repo: %s",
 			err.Error(),
 		)
 	}
@@ -136,8 +145,14 @@ func doCommand(hook lib.CommitHook) {
 	if err != nil {
 		bot.Privmsgf(
 			"#"+os.Getenv("BOT_CHANNEL"),
-			"Had some error pushing repo: %s",
+			"\x034Had some error pushing repo: %s",
 			err.Error(),
 		)
 	}
+
+	bot.Privmsgf(
+		"#"+os.Getenv("BOT_CHANNEL"),
+		"\x036,8done, %s is live...if it's okay with you ^^;;",
+		hook.After[:8],
+	)
 }

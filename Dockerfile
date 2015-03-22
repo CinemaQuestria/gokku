@@ -1,14 +1,16 @@
-FROM golang
+FROM yikaus/alpine-base
+
+RUN apk update && apk add go openssh git
+
+EXPOSE 80
+ENV PORT 80
+ENV GOPATH /go
+ENV PATH $PATH:/go/bin
+
+RUN mkdir -p /gokku/repo
 
 ADD . /go/src/github.com/Xe/gokku
 
 RUN cd /go/src/github.com/Xe/gokku && go get ./...
-
-EXPOSE 80
-ENV PORT 80
-
-RUN apt-get update && apt-get install openssh-client -y
-
-RUN mkdir -p /gokku/repo
 
 CMD gokku
