@@ -1,6 +1,6 @@
 FROM yikaus/alpine-base
 
-RUN apk update && apk add go openssh git
+RUN apk update && apk add go openssh git bash
 
 EXPOSE 80
 ENV PORT 80
