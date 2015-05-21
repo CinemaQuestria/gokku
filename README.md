@@ -31,3 +31,6 @@ ENV GOKKU_REPO git@github.com:cinemaquestria/site
 # Where to git push to
 ENV GOKKU_DOKKU_REMOTE dokku@cq.internal:cinemaquestria
 ```
+
+Now run this somewhere. We run this on the same server that hosts the site for 
+convenience.
