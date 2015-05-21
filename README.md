@@ -34,3 +34,8 @@ ENV GOKKU_DOKKU_REMOTE dokku@cq.internal:cinemaquestria
 
 Now run this somewhere. We run this on the same server that hosts the site for 
 convenience.
+
+In Action
+---------
+
+![](https://i.imgur.com/MLAaD9Z.png)
