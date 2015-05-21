@@ -1,4 +1,4 @@
-FROM yikaus/alpine-base
+FROM docker.io/alpine
 
 RUN apk update && apk add go openssh git bash
 
@@ -9,8 +9,8 @@ ENV PATH $PATH:/go/bin
 
 RUN mkdir -p /gokku/repo
 
-ADD . /go/src/github.com/Xe/gokku
+ADD . /go/src/github.com/CinemaQuestria/gokku
 
-RUN cd /go/src/github.com/Xe/gokku && go get ./...
+RUN cd /go/src/github.com/CinemaQuestria/gokku && go get ./...
 
 CMD gokku
