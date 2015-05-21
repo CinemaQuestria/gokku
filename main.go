@@ -14,7 +14,7 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/Xe/gokku/lib"
+	"github.com/CinemaQuestria/gokku/lib"
 	"github.com/codegangsta/negroni"
 	"github.com/thoj/go-ircevent"
 )
